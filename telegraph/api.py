@@ -19,6 +19,7 @@ class TelegraphApi:
     def __init__(self, access_token=None):
         self.access_token = access_token
         self.session = requests.Session()
+        self.api = 'telegra.ph'
 
     def method(self, method, values=None, path=''):
         values = values.copy() if values is not None else {}
@@ -27,7 +28,7 @@ class TelegraphApi:
             values['access_token'] = self.access_token
 
         response = self.session.post(
-            'https://api.telegra.ph/{}/{}'.format(method, path),
+            'https://api.{}/{}/{}'.format(self.api, method, path),
             data=values
         ).json()
 
@@ -51,7 +52,7 @@ class TelegraphApi:
         """
         with FilesOpener(f) as files:
             response = self.session.post(
-                'https://telegra.ph/upload',
+                'https://{}/upload'.format(self.api),
                 files=files
             ).json()
 
