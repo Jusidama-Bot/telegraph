@@ -14,12 +14,14 @@ class TelegraphApi:
     :type access_token: str
     """
 
-    __slots__ = ('access_token', 'session')
+    __slots__ = ('access_token', 'session', 'api_url')
 
-    def __init__(self, access_token=None):
+    def __init__(self, access_token=None, api_url=None):
         self.access_token = access_token
-        self.api = 'telegra.ph'
         self.session = httpx.AsyncClient()
+        self.api_url = api_url
+        if not self.api_url:
+            self.api_url = 'telegra.ph'
 
     async def method(self, method, values=None, path=''):
         values = values.copy() if values is not None else {}
@@ -28,7 +30,7 @@ class TelegraphApi:
             values['access_token'] = self.access_token
 
         response = (await self.session.post(
-            'https://api.{}/{}/{}'.format(self.api, method, path),
+            'https://api.{}/{}/{}'.format(self.api_url, method, path),
             data=values
         )).json()
 
@@ -53,7 +55,7 @@ class TelegraphApi:
         try:
             with FilesOpener(f) as files:
                 response = (await self.session.post(
-                    'https://{}/upload'.format(self.api),
+                    'https://{}/upload'.format(self.api_url),
                     files=files
                 )).json()
 
@@ -80,10 +82,10 @@ class Telegraph:
     :param access_token: Telegraph access token
     """
 
-    __slots__ = ('_telegraph',)
+    __slots__ = ('_telegraph')
 
-    def __init__(self, access_token=None):
-        self._telegraph = TelegraphApi(access_token)
+    def __init__(self, access_token=None, api_url=None):
+        self._telegraph = TelegraphApi(access_token, api_url)
 
     def get_access_token(self):
         """Get current access_token"""
